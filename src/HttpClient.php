@@ -34,13 +34,13 @@ class HttpClient
      *
      * @return HttpClient
      */
-    public function withNoFollowRedirect()
+    public function withNoFollowRedirect(): HttpClient
     {
         $this->withCurlOption(CURLOPT_FOLLOWLOCATION, false);
         return $this;
     }
 
-    public function withNoSSLVerification()
+    public function withNoSSLVerification(): HttpClient
     {
         $this->withCurlOption(CURLOPT_SSL_VERIFYHOST, 0);
         $this->withCurlOption(CURLOPT_SSL_VERIFYPEER, 0);
@@ -63,7 +63,7 @@ class HttpClient
      * @param UriInterface $uri
      * @return HttpClient
      */
-    public function withProxy(UriInterface $uri)
+    public function withProxy(UriInterface $uri): HttpClient
     {
         if ($uri->getUserInfo() != "") {
             $this->withCurlOption(CURLOPT_PROXYUSERPWD, $uri->getUserInfo());
@@ -72,17 +72,16 @@ class HttpClient
         return $this;
     }
 
-    public function withCurlOption($key, $value)
+    public function withCurlOption(int $key, $value): HttpClient
     {
-        if (!is_int($key)) {
-            throw new InvalidArgumentException('It is not a CURL_OPT argument');
-        }
+        $this->defaultCurlOptions[$key] = $value;
+        return $this;
+    }
 
-        if (!is_null($value)) {
-            $this->defaultCurlOptions[$key] = $value;
-        } else {
-            unset($this->defaultCurlOptions[$key]);
-        }
+    public function withoutCurlOption(int $key): HttpClient
+    {
+        unset($this->defaultCurlOptions[$key]);
+        return $this;
     }
 
 
@@ -92,7 +91,7 @@ class HttpClient
      * @throws CurlException
      * @throws Psr7\MessageException
      */
-    public function sendRequest(RequestInterface $request)
+    public function sendRequest(RequestInterface $request): Response
     {
         $curlHandle = $this->createCurlHandle($request);
 
@@ -147,7 +146,7 @@ class HttpClient
         return $curlHandle;
     }
 
-    protected function setMethod()
+    protected function setMethod(): void
     {
         switch ($this->request->getMethod()) {
             case "POST":
@@ -170,7 +169,7 @@ class HttpClient
     /**
      * @throws CurlException
      */
-    protected function setBody()
+    protected function setBody(): void
     {
         $stream = $this->request->getBody();
         if (!is_null($stream)) {
@@ -184,7 +183,7 @@ class HttpClient
     /**
      * Defines Basic credentials for access the service.
      */
-    protected function setCredentials()
+    protected function setCredentials(): void
     {
         if ($this->request->getUri()->getUserInfo() != "") {
             $this->setCurl(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -192,7 +191,7 @@ class HttpClient
         }
     }
 
-    protected function setHeaders()
+    protected function setHeaders(): void
     {
         $headers = $this->request->getHeaders();
         $resultHeaders = [];
@@ -221,12 +220,8 @@ class HttpClient
      * @param mixed $value
      * @throws InvalidArgumentException
      */
-    protected function setCurl($key, $value)
+    protected function setCurl(int $key, $value): void
     {
-        if (!is_int($key)) {
-            throw new InvalidArgumentException('It is not a CURL_OPT argument');
-        }
-
         if (!is_null($value)) {
             $this->curlOptions[$key] = $value;
         } else {
@@ -234,7 +229,7 @@ class HttpClient
         }
     }
 
-    protected function getCurl($key)
+    protected function getCurl($key): ?string
     {
         if (isset($this->curlOptions[$key])) {
             return $this->curlOptions[$key];
@@ -246,7 +241,7 @@ class HttpClient
     /**
      *
      */
-    protected function clearRequestMethod()
+    protected function clearRequestMethod(): void
     {
         $this->setCurl(CURLOPT_POST, null);
         $this->setCurl(CURLOPT_PUT, null);
@@ -258,7 +253,7 @@ class HttpClient
      * You can override this method to setup your own default options.
      * You can pass the options to the constructor also;
      */
-    protected function defaultCurlOptions()
+    protected function defaultCurlOptions(): void
     {
         $this->setCurl(CURLOPT_CONNECTTIMEOUT, 30);
         $this->setCurl(CURLOPT_TIMEOUT, 30);

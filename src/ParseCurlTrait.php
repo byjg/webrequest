@@ -11,13 +11,13 @@ use Psr\Http\Message\MessageInterface;
 trait ParseCurlTrait
 {
     /**
-     * @param $body
+     * @param string $body
      * @param $curlHandle
      * @param bool $close
      * @return Response|MessageInterface
      * @throws Psr7\MessageException
      */
-    public function parseCurl($body, $curlHandle, $close = true)
+    public function parseCurl(string $body, $curlHandle, bool $close = true): Response
     {
         $headerSize = curl_getinfo($curlHandle, CURLINFO_HEADER_SIZE);
         $status = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
@@ -30,16 +30,16 @@ trait ParseCurlTrait
             ->withBody(new MemoryStream(substr($body, $headerSize)))
             ->withHeader("X-Effective-Url", $effectiveUrl);
 
-        $response = $this->parseHeader($response, substr($body, 0, $headerSize));
-
-        return $response;
+        return $this->parseHeader($response, substr($body, 0, $headerSize));
     }
 
     /**
-     * @param MessageInterface $response
-     * @param $rawHeaders
+     * @param Response $response
+     * @param string $rawHeaders
+     * @return Response
+     * @throws Psr7\MessageException
      */
-    protected function parseHeader(MessageInterface $response, $rawHeaders)
+    protected function parseHeader(Response $response, string $rawHeaders): Response
     {
         foreach (preg_split("/\r?\n/", $rawHeaders) as $headerLine) {
             $headerLine = explode(':', $headerLine, 2);

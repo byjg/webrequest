@@ -9,7 +9,7 @@ class HttpClientParallelTest extends TestCase
 
     const SERVER_TEST = 'http://localhost:8080/multirequest.php';
 
-    protected function setUp()
+    protected function setUp(): void
     {
 
     }

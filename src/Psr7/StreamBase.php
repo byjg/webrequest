@@ -28,7 +28,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
     /**
      * @inheritDoc
      */
-    public function __toString()
+    public function __toString(): string
     {
         if ($this->isDetached()) {
             return "";
@@ -48,7 +48,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
     /**
      * @inheritDoc
      */
-    public function close()
+    public function close(): void
     {
         if (!$this->isDetached()) {
             return;
@@ -73,7 +73,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
     /**
      * @inheritDoc
      */
-    public function getSize()
+    public function getSize(): ?int
     {
         if (!$this->isDetached()) {
             return (int)fstat($this->resource)['size'];
@@ -85,7 +85,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
      * @inheritDoc
      * @throws RuntimeException
      */
-    public function tell()
+    public function tell(): int
     {
         if ($this->isDetached()) {
             throw new RuntimeException("Stream is detached");
@@ -103,7 +103,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
      * @inheritDoc
      * @throws RuntimeException
      */
-    public function eof()
+    public function eof(): bool
     {
         if ($this->isDetached()) {
             throw new RuntimeException("Stream is detached");
@@ -115,7 +115,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
      * @inheritDoc
      * @throws RuntimeException
      */
-    public function isSeekable()
+    public function isSeekable(): bool
     {
         if ($this->isDetached()) {
             throw new RuntimeException("Stream is detached");
@@ -128,7 +128,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
      * @inheritDoc
      * @throws RuntimeException
      */
-    public function seek($offset, $whence = SEEK_SET)
+    public function seek($offset, $whence = SEEK_SET): void
     {
         if (!$this->isSeekable()) {
             throw new RuntimeException("Stream is not seekable");
@@ -140,7 +140,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
      * @inheritDoc
      * @throws RuntimeException
      */
-    public function rewind()
+    public function rewind(): void
     {
         if (!$this->isSeekable()) {
             throw new RuntimeException("Stream is not seekable");
@@ -152,7 +152,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
      * @inheritDoc
      * @throws RuntimeException
      */
-    public function isWritable()
+    public function isWritable(): bool
     {
         if ($this->isDetached()) {
             throw new RuntimeException("Stream is detached");
@@ -169,7 +169,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
      * @inheritDoc
      * @throws RuntimeException
      */
-    public function write($string)
+    public function write($string): int
     {
         if (!$this->isWritable()) {
             throw new RuntimeException("Stream is not writable");
@@ -190,7 +190,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
      * @inheritDoc
      * @throws RuntimeException
      */
-    public function isReadable()
+    public function isReadable(): bool
     {
         if ($this->isDetached()) {
             throw new RuntimeException("Stream is detached");
@@ -207,7 +207,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
     /**
      * @inheritDoc
      */
-    public function read($length)
+    public function read($length): string
     {
         if ($this->isDetached()) {
             throw new RuntimeException("Stream is detached");
@@ -222,7 +222,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
      * @inheritDoc
      * @throws RuntimeException
      */
-    public function getContents()
+    public function getContents(): string
     {
         return $this->read($this->getSize() - $this->tell());
     }
@@ -246,7 +246,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
         return null;
     }
 
-    protected function isDetached()
+    protected function isDetached(): bool
     {
         return (!isset($this->resource) || !is_resource($this->resource));
     }
@@ -254,7 +254,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
     /**
      * @param StreamInterface $stream
      */
-    public function appendStream($stream)
+    public function appendStream($stream): void
     {
         if (!($stream instanceof StreamInterface)) {
             throw new RuntimeException("You need to pass a stream");
@@ -268,7 +268,7 @@ abstract class StreamBase implements StreamInterface, ExtendedStreamInterface
      * @param string $filter
      * @param string $mode (r)ead or (w)rite
      */
-    public function addFilter($filter, $mode = "r")
+    public function addFilter($filter, string $mode = "r")
     {
         stream_filter_append($this->resource, $filter, $mode == "r" ? STREAM_FILTER_READ : STREAM_FILTER_WRITE);
     }

@@ -1,5 +1,6 @@
 <?php
 
+use ByJG\Util\Exception\CurlException;
 use ByJG\Util\Helper\RequestFormUrlEncoded;
 use ByJG\Util\Helper\RequestJson;
 use ByJG\Util\Helper\RequestMultiPart;
@@ -28,7 +29,7 @@ class HttpClientTest extends TestCase
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = HttpClient::getInstance();
     }
@@ -37,7 +38,7 @@ class HttpClientTest extends TestCase
      * Tears down the fixture, for example, closes a network connection.
      * This method is called after a test is executed.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->object = null;
     }
@@ -101,13 +102,13 @@ class HttpClientTest extends TestCase
     }
 
     /**
-     * @throws \ByJG\Util\Exception\CurlException
+     * @throws CurlException
      * @throws \ByJG\Util\Psr7\MessageException
-     * @expectedException \ByJG\Util\Exception\CurlException
-     * @expectedExceptionMessage Cannot set body with method GET
      */
     public function testGet()
     {
+        $this->expectException(CurlException::class);
+        $this->expectExceptionMessage('Cannot set body with method GET');
         $request = Request::getInstance(Uri::getInstanceFromString(self::SERVER_TEST))
             ->withBody(new MemoryStream("A"));
 
@@ -596,7 +597,7 @@ class HttpClientTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $result = ParseBody::parse($response);
 
-        $this->assertContains('multipart/form-data; boundary=', $result['content-type']);
+        $this->assertStringContainsString('multipart/form-data; boundary=', $result['content-type']);
         $this->assertEquals('POST', $result['method']);
         $this->assertEquals([], $result['query_string']);
         $this->assertEquals(['field1' => 'value1', 'field3' => 'value3'], $result['post_string']);

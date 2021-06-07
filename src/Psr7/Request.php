@@ -31,7 +31,7 @@ class Request extends Message implements RequestInterface
      * @return Request
      * @throws MessageException
      */
-    public static function getInstance(UriInterface $uri)
+    public static function getInstance(UriInterface $uri): Request
     {
         return new Request($uri);
     }
@@ -39,7 +39,7 @@ class Request extends Message implements RequestInterface
     /**
      * @inheritDoc
      */
-    public function getRequestTarget()
+    public function getRequestTarget(): string
     {
         $target = $this->uri->getQuery();
         if (!empty($target)) {
@@ -51,7 +51,7 @@ class Request extends Message implements RequestInterface
     /**
      * @inheritDoc
      */
-    public function withRequestTarget($requestTarget)
+    public function withRequestTarget($requestTarget): Request
     {
         $clone = clone $this;
         $parts = explode("?", $requestTarget);
@@ -67,7 +67,7 @@ class Request extends Message implements RequestInterface
     /**
      * @inheritDoc
      */
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->method;
     }
@@ -76,7 +76,7 @@ class Request extends Message implements RequestInterface
      * @inheritDoc
      * @throws MessageException
      */
-    public function withMethod($method)
+    public function withMethod($method): Request
     {
         $method = strtoupper($method);
 
@@ -92,7 +92,7 @@ class Request extends Message implements RequestInterface
     /**
      * @inheritDoc
      */
-    public function getUri()
+    public function getUri(): UriInterface
     {
         return $this->uri;
     }
@@ -101,14 +101,17 @@ class Request extends Message implements RequestInterface
      * @inheritDoc
      * @throws MessageException
      */
-    public function withUri(UriInterface $uri, $preserveHost = false)
+    public function withUri(UriInterface $uri, $preserveHost = false): Request
     {
         $clone = clone $this;
         $clone->setUri($uri, $preserveHost);
         return $clone;
     }
 
-    protected function setUri(UriInterface $uri, $preserveHost = false)
+    /**
+     * @throws MessageException
+     */
+    protected function setUri(UriInterface $uri, $preserveHost = false): void
     {
         $this->uri = $uri;
 

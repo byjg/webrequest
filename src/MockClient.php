@@ -6,6 +6,7 @@ use ByJG\Util\Psr7\Response;
 use ByJG\Util\Psr7\MemoryStream;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class MockClient extends HttpClient
 {
@@ -41,14 +42,14 @@ class MockClient extends HttpClient
      * @return Response
      * @throws Psr7\MessageException
      */
-    public function sendRequest(RequestInterface $request)
+    public function sendRequest(RequestInterface $request): Response
     {
         $curlHandle = $this->createCurlHandle($request);
 
         return $this->parseCurl("", $curlHandle);
     }
 
-    public function parseCurl($body, $curlHandle, $close = true)
+    public function parseCurl(string $body, $curlHandle, $close = true): Response
     {
         return $this->expectedResponse;
     }
@@ -88,7 +89,7 @@ class MockClient extends HttpClient
     /**
      * @return array
      */
-    public function getCurlConfiguration()
+    public function getCurlConfiguration(): array
     {
         return $this->curlOptions;
     }
@@ -96,7 +97,7 @@ class MockClient extends HttpClient
     /**
      * @return RequestInterface
      */
-    public function getRequestedObject()
+    public function getRequestedObject(): RequestInterface
     {
         return $this->request;
     }
@@ -104,7 +105,7 @@ class MockClient extends HttpClient
     /**
      * @return Response
      */
-    public function getExpectedResponse()
+    public function getExpectedResponse(): ResponseInterface
     {
         return $this->expectedResponse;
     }

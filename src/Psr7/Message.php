@@ -19,7 +19,7 @@ class Message implements MessageInterface
     /**
      * @inheritDoc
      */
-    public function getProtocolVersion()
+    public function getProtocolVersion(): string
     {
         return $this->protocolVersion;
     }
@@ -28,7 +28,7 @@ class Message implements MessageInterface
      * @inheritDoc
      * @throws MessageException
      */
-    public function withProtocolVersion($version)
+    public function withProtocolVersion($version): MessageInterface
     {
         if ($version != "1.0" && $version != "1.1") {
             throw new MessageException("Invalid Protocol Version");
@@ -41,7 +41,7 @@ class Message implements MessageInterface
     /**
      * @inheritDoc
      */
-    public function getHeaders()
+    public function getHeaders(): array
     {
         return $this->headers;
     }
@@ -49,7 +49,7 @@ class Message implements MessageInterface
     /**
      * @inheritDoc
      */
-    public function hasHeader($name)
+    public function hasHeader($name): bool
     {
         return (isset($this->headers[$this->normalize($name)]));
     }
@@ -57,7 +57,7 @@ class Message implements MessageInterface
     /**
      * @inheritDoc
      */
-    public function getHeader($name)
+    public function getHeader($name): array
     {
         if ($this->hasHeader($name)) {
             return $this->headers[$this->normalize($name)];
@@ -69,7 +69,7 @@ class Message implements MessageInterface
     /**
      * @inheritDoc
      */
-    public function getHeaderLine($name)
+    public function getHeaderLine($name): string
     {
         return implode(",", $this->getHeader($name));
     }
@@ -78,7 +78,7 @@ class Message implements MessageInterface
      * @inheritDoc
      * @throws MessageException
      */
-    public function withHeader($name, $value)
+    public function withHeader($name, $value): MessageInterface
     {
         $clone = clone $this;
         $clone->setHeader($name, $value, true);
@@ -89,7 +89,7 @@ class Message implements MessageInterface
      * @inheritDoc
      * @throws MessageException
      */
-    public function withAddedHeader($name, $value)
+    public function withAddedHeader($name, $value): MessageInterface
     {
         $clone = clone $this;
         $clone->setHeader($name, $value, false);
@@ -102,7 +102,7 @@ class Message implements MessageInterface
      * @param $overwrite
      * @throws MessageException
      */
-    protected function setHeader($name, $value, $overwrite)
+    protected function setHeader($name, $value, $overwrite): void
     {
         if (!is_string($value) && !is_array($value)) {
             throw new MessageException("Invalid Header Value");
@@ -120,7 +120,7 @@ class Message implements MessageInterface
     /**
      * @inheritDoc
      */
-    public function withoutHeader($name)
+    public function withoutHeader($name): MessageInterface
     {
         $clone = clone $this;
         if ($clone->hasHeader($name)) {
@@ -132,7 +132,7 @@ class Message implements MessageInterface
     /**
      * @inheritDoc
      */
-    public function getBody()
+    public function getBody(): ?StreamInterface
     {
         if (!is_null($this->body)) {
             $this->body->rewind();
@@ -143,14 +143,14 @@ class Message implements MessageInterface
     /**
      * @inheritDoc
      */
-    public function withBody(StreamInterface $body)
+    public function withBody(StreamInterface $body): MessageInterface
     {
         $clone = clone $this;
         $clone->body = $body;
         return $clone;
     }
 
-    protected function normalize($header)
+    protected function normalize($header): string
     {
         return str_replace(" ", "-", ucwords(str_replace("-", " ", strtolower($header))));
     }

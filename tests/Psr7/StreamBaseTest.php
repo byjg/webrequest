@@ -24,12 +24,12 @@ abstract class StreamBaseTest extends TestCase
      */
     protected $stream;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->stream = $this->getResource(self::TEXT1);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->tearDownResource();
         $this->stream = null;

@@ -3,6 +3,7 @@
 namespace ByJG\Util;
 
 use InvalidArgumentException;
+use PhpParser\Node\Expr\AssignOp\Mul;
 use Psr\Http\Message\StreamInterface;
 
 class MultiPartItem
@@ -22,12 +23,12 @@ class MultiPartItem
     /**
      * MultiPartItem constructor.
      *
-     * @param $field
-     * @param $content
-     * @param $filename
-     * @param $contentType
+     * @param string $field
+     * @param string $content
+     * @param string $filename
+     * @param string $contentType
      */
-    public function __construct($field, $content = "", $filename = "", $contentType = "")
+    public function __construct(string $field, string $content = "", string $filename = "", string $contentType = "")
     {
         $this->field = $field;
         $this->content = $content;
@@ -36,12 +37,12 @@ class MultiPartItem
     }
 
     /**
-     * @param $filename
+     * @param string $filename
      * @param string $contentType
      * @return MultiPartItem
      * @throws FileNotFoundException
      */
-    public function loadFile($filename, $contentType = "")
+    public function loadFile(string $filename, string $contentType = ""): MultiPartItem
     {
         if (!file_exists($filename)) {
             throw new FileNotFoundException("File '$filename' does not found!");
@@ -54,7 +55,7 @@ class MultiPartItem
         return $this;
     }
 
-    public function withEncodedBase64()
+    public function withEncodedBase64(): MultiPartItem
     {
         $this->base64 = true;
         return $this;
@@ -64,7 +65,7 @@ class MultiPartItem
      * @param $type
      * @return $this
      */
-    public function withContentDisposition($type)
+    public function withContentDisposition($type): MultiPartItem
     {
         $validTypes = ["form-data", "inline", "attachment"];
         if (!in_array($type, $validTypes)) {
@@ -74,12 +75,12 @@ class MultiPartItem
         return $this;
     }
 
-    public function getField()
+    public function getField(): string
     {
         return $this->field;
     }
 
-    public function getContent()
+    public function getContent(): string
     {
         if ($this->isBase64()) {
             return base64_encode($this->content);
@@ -87,35 +88,35 @@ class MultiPartItem
         return $this->content;
     }
 
-    public function getFilename()
+    public function getFilename(): string
     {
         return $this->filename;
     }
 
-    public function withField($field)
+    public function withField($field): MultiPartItem
     {
         $this->field = $field;
         return $this;
     }
 
-    public function withContent($content)
+    public function withContent($content): MultiPartItem
     {
         $this->content = $content;
         return $this;
     }
 
-    public function withFilename($filename)
+    public function withFilename($filename): MultiPartItem
     {
         $this->filename = $filename;
         return $this;
     }
 
-    public function getContentType()
+    public function getContentType(): string
     {
         return $this->contentType;
     }
 
-    public function withContentType($contentType)
+    public function withContentType($contentType): MultiPartItem
     {
         $this->contentType = $contentType;
         return $this;
@@ -124,7 +125,7 @@ class MultiPartItem
     /**
      * @return bool
      */
-    public function isBase64()
+    public function isBase64(): bool
     {
         return $this->base64;
     }
@@ -132,12 +133,12 @@ class MultiPartItem
     /**
      * @return string
      */
-    public function getContentDisposition()
+    public function getContentDisposition(): string
     {
         return $this->contentDisposition;
     }
     
-    public function build(StreamInterface $stream, $boundary)
+    public function build(StreamInterface $stream, $boundary): void
     {
         $stream->write("--$boundary\nContent-Disposition: {$this->getContentDisposition()}; name=\"{$this->getField()}\";");
         $fileName = $this->getFileName();

@@ -23,7 +23,7 @@ class MockClientTest extends TestCase
     
     protected $curlOptions;
     
-    public function setUp()
+    public function setUp(): void
     {
         $this->object = new MockClient();
         

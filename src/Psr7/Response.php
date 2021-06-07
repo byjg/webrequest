@@ -109,7 +109,7 @@ class Response extends Message implements ResponseInterface
         $this->setStatus($code);
     }
 
-    public static function getInstance($code = 200)
+    public static function getInstance($code = 200): Response
     {
         return new Response($code);
     }
@@ -117,7 +117,7 @@ class Response extends Message implements ResponseInterface
     /**
      * @inheritDoc
      */
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
         return $this->statusCode[0];
     }
@@ -125,14 +125,14 @@ class Response extends Message implements ResponseInterface
     /**
      * @inheritDoc
      */
-    public function withStatus($code, $reasonPhrase = '')
+    public function withStatus($code, $reasonPhrase = ''): Response
     {
         $clone = clone $this;
         $clone->setStatus($code, $reasonPhrase);
         return $clone;
     }
 
-    protected function setStatus($code, $reasonPhrase = "")
+    protected function setStatus($code, $reasonPhrase = ""): void
     {
         $code = intval($code);
         if ($code < 100 || $code > 599) {
@@ -146,7 +146,7 @@ class Response extends Message implements ResponseInterface
     /**
      * @inheritDoc
      */
-    public function getReasonPhrase()
+    public function getReasonPhrase(): string
     {
         return $this->statusCode[1];
     }

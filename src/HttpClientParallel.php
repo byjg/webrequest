@@ -32,22 +32,23 @@ class HttpClientParallel
      */
     protected $defaultOnError = null;
 
+    /**
+     * @var array
+     */
+    protected $errorList = [];
+
     public function __construct(HttpClient $httpClient, Closure $defaultOnSuccess = null, Closure $defaultOnError = null)
     {
         $this->httpClient = $httpClient;
 
         $this->defaultOnSuccess = $defaultOnSuccess;
         if (is_null($defaultOnSuccess)) {
-            $this->defaultOnSuccess = function () {
-                return;
-            };
+            $this->defaultOnSuccess = function () {};
         }
 
         $this->defaultOnError = $defaultOnError;
         if (is_null($defaultOnError)) {
-            $this->defaultOnError = function () {
-                return;
-            };
+            $this->defaultOnError = function () {};
         }
     }
 
@@ -61,7 +62,8 @@ class HttpClientParallel
         RequestInterface $request,
         Closure $onSuccess = null,
         Closure $onError = null
-    ) {
+    ): HttpClientParallel
+    {
         if (is_null($onSuccess)) {
             $onSuccess = $this->defaultOnSuccess;
         }
@@ -85,7 +87,7 @@ class HttpClientParallel
     /**
      * @throws CurlException
      */
-    public function execute()
+    public function execute(): void
     {
         // multi handle
         $multiInitHandle = curl_multi_init();
@@ -101,7 +103,7 @@ class HttpClientParallel
 
         // execute the handles
         $running = null;
-        $errorList = [];
+        $this->errorList = [];
         do {
             $status = curl_multi_exec($multiInitHandle, $running);
 
@@ -126,7 +128,7 @@ class HttpClientParallel
                 try {
                     $this->getContent($multiInitHandle, $done["handle"]);
                 } catch (Exception $ex) {
-                    $errorList[] = get_class($ex) . ": " . $ex->getMessage();
+                    $this->errorList[] = get_class($ex) . ": " . $ex->getMessage();
                 }
             }
 
@@ -136,15 +138,15 @@ class HttpClientParallel
             try {
                 $this->getContent($multiInitHandle, $object->handle);
             } catch (Exception $ex) {
-                $errorList[] = get_class($ex) . ": " . $ex->getMessage();
+                $this->errorList[] = get_class($ex) . ": " . $ex->getMessage();
             }
         }
 
         // all done
         curl_multi_close($multiInitHandle);
 
-        if (count($errorList) > 0) {
-            throw new CurlException("Raised " . count($errorList) . " error(s). \n" . implode("\n", $errorList));
+        if (count($this->errorList) > 0) {
+            throw new CurlException("Raised " . count($this->errorList) . " error(s). \n" . implode("\n", $this->errorList));
         }
     }
 
@@ -153,7 +155,7 @@ class HttpClientParallel
      * @param $handle
      * @throws Psr7\MessageException
      */
-    protected function getContent($multiInitHandle, $handle)
+    protected function getContent($multiInitHandle, $handle): void
     {
         $object = $this->curlClients["ch;" . ((int)$handle)];
 
@@ -165,7 +167,7 @@ class HttpClientParallel
             try {
                 $closure($error, $object->id);
             } catch (Exception $ex) {
-                $errorList[] = $ex;
+                $this->errorList[] = $ex;
             }
         }
 
@@ -175,11 +177,16 @@ class HttpClientParallel
         try {
             $closure($response, $object->id);
         } catch (Exception $ex) {
-            $errorList[] = $ex;
+            $this->errorList[] = $ex;
         }
 
         curl_multi_remove_handle($multiInitHandle, $object->handle);
 
         unset($this->curlClients["ch;" . ((int)$handle)]);
+    }
+
+    public function getErrorList(): array
+    {
+        return $this->errorList;
     }
 }
